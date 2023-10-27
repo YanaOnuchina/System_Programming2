@@ -10,8 +10,10 @@
 
 using namespace std;
 HWND hWnd;
+int fontHeight = 30;
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+void InitDC(HWND hWnd, int windowWidth, int windowHeight);
 
 int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLine, int nCmdShow)
 {
@@ -61,9 +63,32 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         width = LOWORD(lParam);
         height = HIWORD(lParam);
         break;
+    case WM_PAINT:
+        InitDC(hWnd, width, height);
+        break;
     case WM_DESTROY:
         PostQuitMessage(0);
         break;
     }
     return DefWindowProc(hWnd, uMsg, wParam, lParam);
+}
+
+void InitDC(HWND hWnd, int windowWidth, int windowHeight) {
+    RECT rect; HDC memDC;
+    HBITMAP hBmp, hOldBmp; PAINTSTRUCT ps;
+    HDC currDC = BeginPaint(hWnd, &ps);
+    GetClientRect(hWnd, &rect);
+
+    memDC = CreateCompatibleDC(currDC); hBmp = CreateCompatibleBitmap(currDC, rect.right - rect.left, rect.bottom - rect.top);
+    hOldBmp = (HBITMAP)SelectObject(memDC, hBmp);
+    HBRUSH hBkgrndBrush = CreateSolidBrush(RGB(127, 255, 212));
+    FillRect(currDC, &rect, hBkgrndBrush);
+    DeleteObject(hBkgrndBrush);
+    SetBkMode(currDC, TRANSPARENT);
+    HFONT hFont = CreateFont(fontHeight, 0, 0, 0, FW_BOLD, false, 0, 0,
+        DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, PROOF_QUALITY,
+        DEFAULT_PITCH | FF_DONTCARE, NULL);
+    SelectObject(currDC, hFont);
+    DeleteDC(memDC);
+    EndPaint(hWnd, &ps);
 }
