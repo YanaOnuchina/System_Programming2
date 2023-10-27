@@ -10,7 +10,7 @@
 
 using namespace std;
 HWND hWnd;
-int fontSize = 30;
+int fontSize = 25;
 const int COL_NUMBER = 8;
 const  int ROW_NUMBER = 9;
 const int CELL_NUMBER = COL_NUMBER * ROW_NUMBER;
@@ -46,7 +46,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLin
     hWnd = CreateWindowEx(0, L"Lab2", L"SP2", WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT,
         CW_USEDEFAULT, CW_USEDEFAULT, NULL, NULL, hInstance, NULL); 
 
-    ifstream in("C:/Users/Yana/source/repos/SystemProgramming2/x64/Debug/sample1.txt");
+    ifstream in("C:/Users/Yana/source/repos/SystemProgramming2/x64/Debug/sample2.txt");
     string buffer;
     int i = 0;
     if (in.is_open()) {
@@ -95,6 +95,19 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     case WM_DESTROY:
         PostQuitMessage(0);
         break;
+    case WM_KEYUP:
+    {
+        switch (wParam)
+        {
+        case VK_UP:
+            fontSize++;
+            break;
+        case VK_DOWN:
+            fontSize--;
+            break;
+        }
+        InvalidateRect(hWnd, NULL, TRUE);
+    }
     }
     return DefWindowProc(hWnd, uMsg, wParam, lParam);
 }
@@ -160,11 +173,11 @@ void InitDC(HWND hWnd, int windowWidth, int windowHeight) {
     FillRect(currDC, &rect, hBkgrndBrush);
     DeleteObject(hBkgrndBrush);
     SetBkMode(currDC, TRANSPARENT);
-    DrawTable(currDC, rect.right - rect.left, rect.bottom - rect.top);
     HFONT hFont = CreateFont(fontSize, 0, 0, 0, FW_BOLD, false, 0, 0,
         DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, PROOF_QUALITY,
         DEFAULT_PITCH | FF_DONTCARE, NULL);
     SelectObject(currDC, hFont);
+    DrawTable(currDC, rect.right - rect.left, rect.bottom - rect.top);
     DeleteDC(memDC);
     EndPaint(hWnd, &ps);
 }
