@@ -99,18 +99,68 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     return DefWindowProc(hWnd, uMsg, wParam, lParam);
 }
 
+void DrawVerticalLines(HDC hDC, int windowWidth, int windowHeight)
+{
+    int columnWidth = windowWidth / COL_NUMBER;
+
+    for (int i = 0; i < COL_NUMBER; i++)
+    {
+        MoveToEx(hDC, i * columnWidth, 0, NULL);
+        LineTo(hDC, i * columnWidth, windowHeight);
+    }
+    MoveToEx(hDC, windowWidth - 1, 0, NULL);
+    LineTo(hDC, windowWidth - 1, windowHeight);
+}
+
+void DrawHorizontalLines(HDC hDC, int windowWidth, int rowHeight)
+{
+    MoveToEx(hDC, 0, rowHeight, NULL);
+    LineTo(hDC, windowWidth, rowHeight);
+}
+
+
+void DrawTable(HDC currDC, int windowWidth, int windowHeight) {
+    int columnWidth = windowWidth / COL_NUMBER;
+    DrawHorizontalLines(currDC, windowWidth, 1);
+    int i = 0;
+    int editInd = 0; int textHeight = 0;
+    int fontSize = 20; RECT rect = { 0, 0, 0, windowHeight };
+    while (i < CELL_NUMBER) {
+        rect.top = textHeight;
+
+        int maxTextHeight = 0;  
+        for (int j = 0; (j < COL_NUMBER) && (i < CELL_NUMBER); j++)
+        {
+            const char* str = textPieces[i].c_str();
+            rect.left = j * columnWidth + 3;
+            rect.right = (j + 1) * columnWidth;
+            int currentTextHeight = DrawTextA(currDC, str, strlen(str), &rect, DT_EDITCONTROL | DT_WORDBREAK);
+            if (maxTextHeight < currentTextHeight) {
+                maxTextHeight = currentTextHeight;
+            }
+            i++;
+        }
+
+        textHeight += maxTextHeight;
+        DrawHorizontalLines(currDC, windowWidth, textHeight);
+    }
+    DrawVerticalLines(currDC, windowWidth, textHeight);
+}
+
 void InitDC(HWND hWnd, int windowWidth, int windowHeight) {
     RECT rect; HDC memDC;
     HBITMAP hBmp, hOldBmp; PAINTSTRUCT ps;
     HDC currDC = BeginPaint(hWnd, &ps);
     GetClientRect(hWnd, &rect);
 
-    memDC = CreateCompatibleDC(currDC); hBmp = CreateCompatibleBitmap(currDC, rect.right - rect.left, rect.bottom - rect.top);
+    memDC = CreateCompatibleDC(currDC); 
+    hBmp = CreateCompatibleBitmap(currDC, rect.right - rect.left, rect.bottom - rect.top);
     hOldBmp = (HBITMAP)SelectObject(memDC, hBmp);
     HBRUSH hBkgrndBrush = CreateSolidBrush(RGB(127, 255, 212));
     FillRect(currDC, &rect, hBkgrndBrush);
     DeleteObject(hBkgrndBrush);
     SetBkMode(currDC, TRANSPARENT);
+    DrawTable(currDC, rect.right - rect.left, rect.bottom - rect.top);
     HFONT hFont = CreateFont(fontSize, 0, 0, 0, FW_BOLD, false, 0, 0,
         DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, PROOF_QUALITY,
         DEFAULT_PITCH | FF_DONTCARE, NULL);
