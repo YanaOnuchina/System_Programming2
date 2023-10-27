@@ -138,10 +138,6 @@
   <ItemGroup>
     <ResourceCompile Include="Lab2.rc" />
   </ItemGroup>
-  <ItemGroup>
-    <Image Include="Lab2.ico" />
-    <Image Include="small.ico" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

@@ -26,7 +26,8 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLin
     wcex.hInstance = hInstance;
     wcex.hIcon = NULL;
     wcex.hCursor = LoadCursorW(NULL, IDC_ARROW);
-    wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
+    HBRUSH hBkgrndBrush = CreateSolidBrush(RGB(127, 255, 212));
+    wcex.hbrBackground = hBkgrndBrush;
     wcex.lpszMenuName = NULL;
     wcex.lpszClassName = L"Lab2";
     wcex.hIconSm = NULL;
